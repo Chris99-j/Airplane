@@ -6,6 +6,8 @@ const gameOverText = document.getElementById('gameOver');
 const leftBtn = document.getElementById('leftBtn');
 const rightBtn = document.getElementById('rightBtn');
 const shootBtn = document.getElementById('shootBtn');
+const retryBtn = document.getElementById('retryBtn');
+
 
 const gameWidth = 400;
 const gameHeight = 600;
@@ -108,22 +110,26 @@ function createEnemy() {
   if (type < 0.7) {
     enemy.classList.add('enemy'); // normal enemy
   } else {
-    enemy.classList.add('enemy-strong'); // stronger enemy, maybe bigger or faster
+    enemy.classList.add('enemy-strong'); // stronger enemy
   }
 
   const x = Math.floor(Math.random() * (gameWidth - 40));
+  const startY = -40;  // Start just above the visible screen
   enemy.style.left = x + 'px';
-  enemy.style.top = '-40px';
+  enemy.style.top = startY + 'px';
   game.appendChild(enemy);
 
   enemies.push({
     el: enemy,
     x: x,
-    y: -40,
+    y: startY,
     type: type < 0.7 ? 'normal' : 'strong',
-    health: type < 0.7 ? 1 : 2 // set health here
+    health: type < 0.7 ? 1 : 2
   });
+
+  console.log('Enemy spawned at y:', startY);
 }
+
 
 
 
@@ -138,7 +144,7 @@ function isColliding(a, b) {
   );
 }
 
-// --- UPDATE GAME STATE ---
+
 function update() {
   if (gameOver) return;
 
@@ -189,27 +195,31 @@ function update() {
     }
   }
 
-  // Move enemies downward (outside bullet loop)
-  const enemySpeed = 1.5; // Adjust enemy speed here
-  for (let i = enemies.length - 1; i >= 0; i--) {
+ for (let i = enemies.length - 1; i >= 0; i--) {
   enemies[i].y += enemySpeed;
   enemies[i].el.style.top = enemies[i].y + 'px';
 
-  const enemyHeight = 40;
-  if (enemies[i].y + enemyHeight >= gameHeight) {
+  const enemyHeight = enemies[i].el.offsetHeight;
+
+  // Only trigger game over if enemy is actually visible and at bottom
+  if (enemies[i].y > 0 && enemies[i].y + enemyHeight >= gameHeight) {
+    console.log('Enemy reached bottom:', enemies[i].y);
     endGame();
   }
 }
 
+
 }
+
 
 
 
 
 function endGame() {
   gameOver = true;
-  gameOverText.style.display = 'flex';
+  gameOverText.style.display = 'flex'; // not 'block' or 'inline'
 }
+
 
 
 // --- GAME LOOP ---
@@ -220,15 +230,20 @@ function gameLoop() {
 gameLoop();
 
 
-// Start auto shooting immediately after game starts:
-const autoFireInterval = setInterval(() => {
-  if (!gameOver) {
-    shoot();
-  } else {
-    clearInterval(autoFireInterval);
-  }
-}, 300);  // fires every 300ms, tweak the interval to your liking
 
+let autoFireInterval;
+
+function startAutoFire() {
+  if (autoFireInterval) clearInterval(autoFireInterval);
+  autoFireInterval = setInterval(() => {
+    if (!gameOver) {
+      shoot();
+    }
+  }, 300);
+}
+
+// Start auto-fire on page load
+startAutoFire();
 
 // --- BUTTON SHOOT ---
 shootBtn.addEventListener('click', () => {
@@ -260,3 +275,32 @@ let spawnInterval = setInterval(createEnemy, enemySpawnInterval);
 
 
 
+
+
+// KEEP this only
+retryBtn.addEventListener('click', () => {
+  gameOverText.style.display = 'none';  // Hide game over screen
+
+  gameOver = false;
+  score = 0;
+  level = 1;
+  enemySpeed = 2;
+  enemySpawnInterval = 2000;
+
+  scoreboard.innerText = `Score: ${score}`;
+
+  bullets.forEach(bullet => bullet.el.remove());
+  bullets = [];
+
+  enemies.forEach(enemy => enemy.el.remove());
+  enemies = [];
+
+  planeX = 180;
+  plane.style.left = planeX + 'px';
+
+  clearInterval(spawnInterval);
+  spawnInterval = setInterval(createEnemy, enemySpawnInterval);
+
+  // Restart auto-fire
+  startAutoFire();
+});

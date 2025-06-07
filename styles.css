@@ -28,6 +28,7 @@ h1 {
   touch-action: none;
 }
 
+
 /* --- Plane --- */
 
 
@@ -56,26 +57,6 @@ h1 {
 #scoreboard {
   margin: 8px 0;
   font-size: 20px;
-}
-
-/* --- Game Over --- */
-#gameOver {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  color: #f44;
-  font-size: 36px;
-  font-weight: bold;
-  display: none; /* ONLY keep this */
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  user-select: none;
-  z-index: 10;
-}
-#gameOver.active {
-  display: flex; /* Show when active */
 }
 
 /* --- Control buttons container --- */
@@ -154,4 +135,67 @@ button:active {
   border-right: 10px solid transparent;
   border-bottom: 15px solid #0ff;
   border-radius: 2px;
+}
+
+#retryBtn:active {
+  background-color: #08a;
+  color: white;
+  box-shadow: 0 0 15px #08a inset;
+}
+#gameOver {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: none; /* initially */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  pointer-events: auto; /* important */
+}
+
+#gameOver button {
+  margin-top: 20px;
+  font-size: 28px;
+  padding: 10px 20px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#gameOver {
+  pointer-events: auto !important;
+}
+#gameOver button {
+  pointer-events: auto !important;
+}
+
+
+#gameOver.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#gameOver.active {
+  display: flex; /* or block or flex, whatever suits your layout */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+
+#retryBtn {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#game {
+  border: 3px solid lime; /* bright green for visibility */
+}
+.enemy {
+  border: 1px solid white;
+  opacity: 0.8;
 }
